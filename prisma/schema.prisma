@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+
+  forumPosts    ForumPost[]
+  forumComments ForumComment[]
+  forumLikes    ForumLike[]
+  doubts        Doubt[]
+  doubtAnswers  DoubtAnswer[]
+  answerUpvotes DoubtAnswerUpvote[]
+  marketplaceProducts MarketplaceProduct[]
+}
+
+// Forum Post Model
+model ForumPost {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  createdAt   DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  userId   Int
+  comments ForumComment[]
+  likes    ForumLike[]
+}
+
+// Forum Comment Model
+model ForumComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  post   ForumPost @relation(fields: [postId], references: [id])
+  postId Int
+  user   User     @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+// Forum Like Model
+model ForumLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  post   ForumPost @relation(fields: [postId], references: [id])
+  postId Int
+  user   User     @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@unique([postId, userId])
+}
+
+// Doubt Model
+model Doubt {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  tag         String
+  image       String? // Optional image
+  createdAt   DateTime  @default(now())
+
+  user    User         @relation(fields: [userId], references: [id])
+  userId  Int
+  answers DoubtAnswer[]
+}
+
+// Doubt Answer Model
+model DoubtAnswer {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  doubt   Doubt @relation(fields: [doubtId], references: [id])
+  doubtId Int
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+  upvotes DoubtAnswerUpvote[]
+}
+
+// Doubt Answer Upvote Model
+model DoubtAnswerUpvote {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  answer   DoubtAnswer @relation(fields: [answerId], references: [id])
+  answerId Int
+  user     User        @relation(fields: [userId], references: [id])
+  userId   Int
+
+  @@unique([answerId, userId])
+}
+
+// Marketplace Product Model
+model MarketplaceProduct {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal
+  image       String?
+  createdAt   DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+// Confession Model
+model Confession {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+}

@@ -63,6 +63,7 @@ model ForumLike {
 }
 
 // Doubt Model
+// This model represents a question or doubt posted by a user.
 model Doubt {
   id          Int       @id @default(autoincrement())
   title       String

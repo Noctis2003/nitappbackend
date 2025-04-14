@@ -9,29 +9,29 @@ datasource db {
 
 // User Model
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
   password  String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
-  forumPosts    ForumPost[]
-  forumComments ForumComment[]
-  forumLikes    ForumLike[]
-  doubts        Doubt[]
-  doubtAnswers  DoubtAnswer[]
-  answerUpvotes DoubtAnswerUpvote[]
+  forumPosts          ForumPost[]
+  forumComments       ForumComment[]
+  forumLikes          ForumLike[]
+  doubts              Doubt[]
+  doubtAnswers        DoubtAnswer[]
+  answerUpvotes       DoubtAnswerUpvote[]
   marketplaceProducts MarketplaceProduct[]
 }
 
 // Forum Post Model
 model ForumPost {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 
-  user     User      @relation(fields: [userId], references: [id])
+  user     User           @relation(fields: [userId], references: [id])
   userId   Int
   comments ForumComment[]
   likes    ForumLike[]
@@ -45,7 +45,7 @@ model ForumComment {
 
   post   ForumPost @relation(fields: [postId], references: [id])
   postId Int
-  user   User     @relation(fields: [userId], references: [id])
+  user   User      @relation(fields: [userId], references: [id])
   userId Int
 }
 
@@ -56,7 +56,7 @@ model ForumLike {
 
   post   ForumPost @relation(fields: [postId], references: [id])
   postId Int
-  user   User     @relation(fields: [userId], references: [id])
+  user   User      @relation(fields: [userId], references: [id])
   userId Int
 
   @@unique([postId, userId])
@@ -65,14 +65,14 @@ model ForumLike {
 // Doubt Model
 // This model represents a question or doubt posted by a user.
 model Doubt {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String
   tag         String
   image       String? // Optional image
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 
-  user    User         @relation(fields: [userId], references: [id])
+  user    User          @relation(fields: [userId], references: [id])
   userId  Int
   answers DoubtAnswer[]
 }
@@ -83,22 +83,21 @@ model DoubtAnswer {
   content   String
   createdAt DateTime @default(now())
 
-  doubt   Doubt @relation(fields: [doubtId], references: [id])
+  doubt   Doubt               @relation(fields: [doubtId], references: [id])
   doubtId Int
-  user    User  @relation(fields: [userId], references: [id])
+  user    User                @relation(fields: [userId], references: [id])
   userId  Int
   upvotes DoubtAnswerUpvote[]
 }
 
 // Doubt Answer Upvote Model
 model DoubtAnswerUpvote {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-
-  answer   DoubtAnswer @relation(fields: [answerId], references: [id])
-  answerId Int
-  user     User        @relation(fields: [userId], references: [id])
-  userId   Int
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  answer    DoubtAnswer @relation(fields: [answerId], references: [id])
+  answerId  Int
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
 
   @@unique([answerId, userId])
 }
@@ -115,6 +114,10 @@ model MarketplaceProduct {
   user   User @relation(fields: [userId], references: [id])
   userId Int
 }
+
+
+
+
 
 // Confession Model
 model Confession {

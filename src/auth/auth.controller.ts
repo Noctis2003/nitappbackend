@@ -7,14 +7,32 @@ import {
   Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
 import { JwtAuthGuard } from './jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('login')
-  async login(@Body() body: { email: string; password: string }): Promise<any> {
+  async login(
+    @Body() body: { email: string; password: string },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
     const { email, password } = body;
-    return this.authService.login(email, password);
+    const { access_token, user } = await this.authService.login(
+      email,
+      password,
+    );
+    res.cookie('jwt', access_token, {
+      httpOnly: true,
+      maxAge: 3600000, // 1 hour
+      secure: false, // Set to false in development
+      sameSite: 'lax', // Allow cookies for cross-origin requests with navigation
+    });
+    return {
+      message: 'Login successful',
+      user,
+    };
   }
   @Post('register')
   async register(
@@ -23,7 +41,17 @@ export class AuthController {
     const { email, password, username } = body;
     return this.authService.register(email, password, username);
   }
-
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response): Promise<any> {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: false, // Set to false in development
+      sameSite: 'lax', // Allow cookies for cross-origin requests with navigation
+    });
+    return {
+      message: 'Logout successful',
+    };
+  }
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req: { user: { userId: number } }): any {

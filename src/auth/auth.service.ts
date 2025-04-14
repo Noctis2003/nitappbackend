@@ -106,10 +106,7 @@ export class AuthService {
       return userWithoutPassword;
     } catch (error) {
       console.error('Error during registration:', error.message);
-      throw new HttpException(
-        'Registration failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw error; // Re-throw the error to be handled by NestJS
     }
   }
 }

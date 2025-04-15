@@ -1,8 +1,10 @@
-// i guess this how it is
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UserProfileDto } from './dto/user-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,102 +13,84 @@ export class AuthService {
     private prisma: PrismaService,
   ) {}
 
-  async validateUser(
+  private async validateUser(
     email: string,
     pass: string,
   ): Promise<{ id: number; email: string } | null> {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { email },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-
-      const isPasswordValid = await bcrypt.compare(pass, user.password);
-
-      if (!isPasswordValid) {
-        throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
-      }
-
-      return { id: user.id, email: user.email };
-    } catch (error) {
-      console.error('Error validating user:', error.message);
-      throw error; // Re-throw the error to be handled by NestJS
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    const isPasswordValid = await bcrypt.compare(pass, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
+    }
+
+    return { id: user.id, email: user.email };
   }
 
-  async login(email: string, password: string): Promise<any> {
+  async login(loginDto: LoginDto): Promise<any> {
+    const { email, password } = loginDto;
     const user = await this.validateUser(email, password);
     if (!user) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
-
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload, { secret: 'qeqeqe' }),
       user: {
         id: user.id,
         email: user.email,
-        // Add more fields here if needed
       },
+      message: 'Login successful',
     };
   }
 
-  async getUserProfile(userId: number): Promise<any> {
-    try {
-      if (!userId) {
-        throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
-      }
-
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId }, // Ensure userId is passed correctly
-      });
-
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    } catch (error) {
-      console.error('Error fetching user profile:', error.message);
-      throw error; // Re-throw the error to be handled by NestJS
+  async getUserProfile(userId: number): Promise<UserProfileDto> {
+    if (!userId) {
+      throw new HttpException('User ID is required', HttpStatus.BAD_REQUEST);
     }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
-  async register(
-    email: string,
-    password: string,
-    username: string,
-  ): Promise<any> {
-    try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email },
-      });
+  async register(registerDto: RegisterDto): Promise<UserProfileDto> {
+    const { email, password, username } = registerDto;
 
-      if (existingUser) {
-        throw new HttpException('User already exists', HttpStatus.CONFLICT);
-      }
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const user = await this.prisma.user.create({
-        data: {
-          username,
-          email,
-          password: hashedPassword,
-        },
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    } catch (error) {
-      console.error('Error during registration:', error.message);
-      throw error; // Re-throw the error to be handled by NestJS
+    if (existingUser) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

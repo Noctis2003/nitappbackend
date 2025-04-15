@@ -7,6 +7,8 @@ import { DoubtsModule } from './doubts/doubts.module';
 import { ShopModule } from './shop/shop.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { GossipModule } from './gossip/gossip.module';
+import { CollabModule } from './collab/collab.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AuthModule } from './auth/auth.module';
     ShopModule,
     UserModule,
     AuthModule,
+    GossipModule,
+    CollabModule,
   ],
   controllers: [AppController],
   providers: [AppService],

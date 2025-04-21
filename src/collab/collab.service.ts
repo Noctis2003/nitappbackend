@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCollabDto } from './dto/create-collab.dto';
-import { UpdateCollabDto } from './dto/update-collab.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { HttpStatus, HttpException } from '@nestjs/common';
 
 @Injectable()
 export class CollabService {
-  create(createCollabDto: CreateCollabDto) {
-    return 'This action adds a new collab';
-  }
+  constructor(private readonly prisma: PrismaService) {}
+  create(createCollabDto: CreateCollabDto, userId: number) {
+    if (!userId) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'User not found',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
-  findAll() {
-    return `This action returns all collab`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} collab`;
-  }
-
-  update(id: number, updateCollabDto: UpdateCollabDto) {
-    return `This action updates a #${id} collab`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} collab`;
+    return this.prisma.collabGig.create({
+      data: {
+        name: createCollabDto.name,
+        description: createCollabDto.description,
+        userId: userId,
+        roles: {
+          create: createCollabDto.roles.map((role) => ({
+            roleName: role.roleName,
+          })),
+        },
+      },
+      include: {
+        roles: true,
+      },
+    });
   }
 }
+// this is how you do it in nestjs
+// this is the way you do it in nestjs

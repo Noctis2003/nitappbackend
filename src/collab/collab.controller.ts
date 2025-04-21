@@ -1,42 +1,27 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CollabService } from './collab.service';
 import { CreateCollabDto } from './dto/create-collab.dto';
-import { UpdateCollabDto } from './dto/update-collab.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('collab')
 export class CollabController {
   constructor(private readonly collabService: CollabService) {}
 
-  @Post()
-  create(@Body() createCollabDto: CreateCollabDto) {
-    return this.collabService.create(createCollabDto);
+  @UseGuards(JwtAuthGuard)
+  @Post('create')
+  create(@Body() createCollabDto: CreateCollabDto, @Req() req: Request) {
+    const userId = (req.user as { userId: number }).userId;
+    return this.collabService.create(createCollabDto, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.collabService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collabService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCollabDto: UpdateCollabDto) {
-    return this.collabService.update(+id, updateCollabDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.collabService.remove(+id);
-  }
+  // You can add other endpoints here (e.g. findAll, findOne, etc.)
 }

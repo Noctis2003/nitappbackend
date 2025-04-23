@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { GossipService } from './gossip.service';
 import { CreateGossipDto } from './dto/create-gossip.dto';
 
@@ -9,5 +9,9 @@ export class GossipController {
   @Post('create')
   create(@Body() createGossipDto: CreateGossipDto) {
     return this.gossipService.create(createGossipDto);
+  }
+  @Get('get')
+  getGossip() {
+    return this.gossipService.getGossip();
   }
 }

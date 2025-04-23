@@ -93,4 +93,8 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  getUserEmailDomain(email: string): string {
+    return email.split('@')[1];
+  }
 }

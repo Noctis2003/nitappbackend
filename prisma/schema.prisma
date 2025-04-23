@@ -100,7 +100,6 @@ model CollabGig {
   name        String
   description String
   createdAt   DateTime      @default(now())
-
   user   User         @relation(fields: [userId], references: [id])
   userId Int
   roles  CollabRole[]

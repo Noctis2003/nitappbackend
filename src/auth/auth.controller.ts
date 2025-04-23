@@ -56,14 +56,12 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  async getProfile(@Request() req: { user: { userId: number } }): Promise<any> {
+  @Get('email')
+  async getDomain(
+    @Request() req: { user: { userId: number; email: string } },
+  ): Promise<any> {
     const id = req.user?.userId;
-
-    if (!id) {
-      throw new Error('User ID not found in request');
-    }
-
-    return this.authService.getUserProfile(id);
+    const email = req.user?.email;
+   return this.authService.getUserEmailDomain(email);
   }
 }

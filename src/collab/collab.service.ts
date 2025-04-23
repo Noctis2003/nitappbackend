@@ -6,7 +6,7 @@ import { HttpStatus, HttpException } from '@nestjs/common';
 @Injectable()
 export class CollabService {
   constructor(private readonly prisma: PrismaService) {}
-  create(createCollabDto: CreateCollabDto, userId: number) {
+  async create(createCollabDto: CreateCollabDto, userId: number) {
     if (!userId) {
       throw new HttpException(
         {
@@ -17,7 +17,7 @@ export class CollabService {
       );
     }
 
-    return this.prisma.collabGig.create({
+    const res = await this.prisma.collabGig.create({
       data: {
         name: createCollabDto.name,
         description: createCollabDto.description,
@@ -32,6 +32,11 @@ export class CollabService {
         roles: true,
       },
     });
+    return {
+      status: HttpStatus.OK,
+      message: 'Collab created successfully',
+      data: res,
+    };
   }
 }
 // this is how you do it in nestjs

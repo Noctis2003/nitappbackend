@@ -18,4 +18,13 @@ export class GossipService {
       data: res,
     };
   }
+
+  async getGossip() {
+    const res = await this.prisma.gossip.findMany({});
+    return {
+      status: HttpStatus.OK,
+      message: 'Gossip retrieved successfully',
+      data: res,
+    };
+  }
 }

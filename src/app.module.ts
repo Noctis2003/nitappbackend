@@ -9,9 +9,14 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { GossipModule } from './gossip/gossip.module';
 import { CollabModule } from './collab/collab.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     PrismaModule,
     ForumModule,
     DoubtsModule,

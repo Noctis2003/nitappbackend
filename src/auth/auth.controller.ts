@@ -5,14 +5,20 @@ import {
   UseGuards,
   Request,
   Get,
+  Req,
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Response } from 'express';
+import { Response, Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
+
+interface CustomRequest extends ExpressRequest {
+  cookies: { [key: string]: string }; // Add cookies property
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -41,6 +47,10 @@ export class AuthController {
       secure: false, // Set to true in production with HTTPS
       sameSite: 'lax',
     });
+    await this.authService.updateRefreshToken(
+      user.id,
+      refresh_token,
+    );
     return {
       message: 'Login successful',
       user,
@@ -59,14 +69,22 @@ export class AuthController {
       secure: false, // Set to true in production
       sameSite: 'lax',
     });
-
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: false, // Set to true in production
+      sameSite: 'lax',
+    });
+  
     return {
       message: 'Logout successful',
     };
   }
 
   @Post('refresh')
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<any> {
+  async refresh(
+    @Req() req: CustomRequest, // Use the custom request type
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
     const refreshToken = req.cookies['refresh_token'];
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token not found' });
@@ -80,9 +98,12 @@ export class AuthController {
         payload.sub,
       );
       if (!isValid) {
+        await this.authService.logout(payload.sub);
         return res.status(401).json({ message: 'Invalid refresh token' });
       }
       const user = await this.authService.getUserById(payload.sub);
+      // this part of code generates new tokens
+      // and also rotates the refresh token
       const newTokens = await this.authService.generateTokens(
         user.id,
         user.email,
@@ -109,6 +130,7 @@ export class AuthController {
       return {
         message: 'Token refreshed successfully',
         access_token: newTokens.access_token,
+        refresh_token: newTokens.refresh_token,
       };
     } catch (error) {
       return res.status(401).json({ message: 'Invalid refresh token' });

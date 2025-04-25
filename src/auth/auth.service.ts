@@ -39,7 +39,13 @@ export class AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async generateTokens(userId: number,email:string): Promise<any> {
+  async generateTokens(userId: number, email: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       secret: 'qeqeqe',
@@ -52,8 +58,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-    }  
-
+    };
   }
 
   async login(loginDto: LoginDto): Promise<any> {
@@ -135,13 +140,16 @@ export class AuthService {
   }
   async verifyRefreshToken(
     refreshToken: string,
-    userId: string,
-  ): Promise<boolean> {
+    userId: number,
+  ): Promise<any> {
     const user = await this.prisma.user.findUnique({
-      where: { id: Number(userId) },
+      where: { id: userId },
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.refreshToken) {
+      throw new HttpException('No refresh token found', HttpStatus.UNAUTHORIZED);
     }
     return bcrypt.compare(refreshToken, user.refreshToken);
   }
@@ -175,5 +183,4 @@ export class AuthService {
       data: { refreshToken: null },
     });
   }
-}
 }

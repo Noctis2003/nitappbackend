@@ -138,10 +138,7 @@ export class AuthService {
   getUserEmailDomain(email: string): string {
     return email.split('@')[1];
   }
-  async verifyRefreshToken(
-    refreshToken: string,
-    userId: number,
-  ): Promise<any> {
+  async verifyRefreshToken(refreshToken: string, userId: number): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -149,7 +146,10 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     if (!user.refreshToken) {
-      throw new HttpException('No refresh token found', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'No refresh token found',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
     return bcrypt.compare(refreshToken, user.refreshToken);
   }
@@ -171,7 +171,7 @@ export class AuthService {
     });
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: number): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: { id: Number(userId) },
     });
@@ -182,5 +182,9 @@ export class AuthService {
       where: { id: Number(userId) },
       data: { refreshToken: null },
     });
+    return {
+      status: HttpStatus.OK,
+      message: 'Logout successful from test',
+    };
   }
 }

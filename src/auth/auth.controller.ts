@@ -47,10 +47,7 @@ export class AuthController {
       secure: false, // Set to true in production with HTTPS
       sameSite: 'lax',
     });
-    await this.authService.updateRefreshToken(
-      user.id,
-      refresh_token,
-    );
+    await this.authService.updateRefreshToken(user.id, refresh_token);
     return {
       message: 'Login successful',
       user,
@@ -63,21 +60,19 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: Response): Promise<any> {
+  logout(@Res({ passthrough: true }) res: Response, @Req() req) {
+    const userId = req.user?.userId;
     res.clearCookie('jwt', {
       httpOnly: true,
       secure: false, // Set to true in production
       sameSite: 'lax',
     });
+
     res.clearCookie('refresh_token', {
       httpOnly: true,
       secure: false, // Set to true in production
       sameSite: 'lax',
     });
-  
-    return {
-      message: 'Logout successful',
-    };
   }
 
   @Post('refresh')

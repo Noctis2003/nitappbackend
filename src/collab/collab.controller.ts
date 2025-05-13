@@ -25,6 +25,11 @@ export class CollabController {
 
   @UseGuards(JwtAuthGuard)
   @Get('collabs')
+  async getCollab(@Query('id') id: string) {
+    return this.collabService.getCollabById(Number(id));
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('get')
   async getCollabs(
     @Query('scope') scope: 'local' | 'global' = 'global',
     @Req() req: Request,
@@ -32,5 +37,4 @@ export class CollabController {
     const email = (req.user as { email: string }).email;
     return this.collabService.getCollabs(scope, email);
   }
-  // You can add other endpoints here (e.g. findAll, findOne, etc.)
 }

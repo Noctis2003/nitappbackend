@@ -65,7 +65,12 @@ export class CollabService {
         },
         include: {
           roles: true,
-          user: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
         },
       });
     }
@@ -77,6 +82,28 @@ export class CollabService {
         user: true,
       },
     });
+  }
+
+  async getCollabById(id: number) {
+    const collab = await this.prisma.collabGig.findUnique({
+      where: { id },
+      include: {
+        roles: true,
+        user: true,
+      },
+    });
+
+    if (!collab) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Collab not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return collab;
   }
 }
 // this is how you do it in nestjs

@@ -1,26 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreatePostDto } from './dto/create-post.dto';
+
 @Injectable()
 export class ForumService {
   constructor(private readonly prisma: PrismaService) {}
-  async createPost(title: string, description: string, userId: number) {
+
+  async createPost(createPostDto: CreatePostDto, userId: number) {
+    const { title, description } = createPostDto;
+
     return this.prisma.forumPost.create({
       data: {
         title,
         description,
-        userId,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+        likes: true,
+        comments: true,
       },
     });
   }
+
   async getPosts() {
-    return this.prisma.forumPost.findMany({
+    const res = await this.prisma.forumPost.findMany({
       include: {
         user: {
           select: {
             id: true,
+            email: true,
           },
         },
+        likes: true,
+        comments: true,
       },
     });
+    return {
+      status: 200,
+      message: 'Posts fetched successfully',
+      data: res,
+    };
   }
 }

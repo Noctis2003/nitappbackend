@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserProfileDto } from './dto/user-profile.dto';
-import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
 export class AuthService {
@@ -19,25 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
   ) {}
 
-  private async validateUser(
-    email: string,
-    pass: string,
-  ): Promise<{ id: number; email: string } | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    const isPasswordValid = await bcrypt.compare(pass, user.password);
-    if (!isPasswordValid) {
-      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
-    }
-
-    return { id: user.id, email: user.email };
-  }
+  
 
   async generateTokens(userId: number, email: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
@@ -62,10 +44,13 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<any> {
-    const { email, password } = loginDto;
-    const user = await this.validateUser(email, password);
+    const { email } = loginDto;
+   
+    const user=await this.prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const payload = { email: user.email, sub: user.id };
     return {
@@ -96,12 +81,22 @@ export class AuthService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    
+    return user;
+  }
+
+  async exists(email: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      return false;
+    }
+    return true;
   }
 
   async register(registerDto: RegisterDto): Promise<UserProfileDto> {
-    const { email, password, username } = registerDto;
+    const { email, username } = registerDto;
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -111,19 +106,17 @@ export class AuthService {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+   
 
     const user = await this.prisma.user.create({
       data: {
-        username,
         email,
-        password: hashedPassword,
+        username
       },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+
+  return user;
   }
 
   async getUserById(userId: string): Promise<any> {

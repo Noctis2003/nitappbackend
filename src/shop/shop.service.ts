@@ -2,11 +2,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, MarketplaceProduct } from '@prisma/client';
-
+import { AuthService } from '../auth/auth.service'; // Adjust the import path as necessary
 @Injectable()
 export class ShopService {
-  constructor(private readonly prisma: PrismaService) {}
-
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authService: AuthService, 
+  ) {}
   async createProduct(
     name: string,
     price: number | string,
@@ -50,6 +52,10 @@ export class ShopService {
     }
   }
 
+
+  
+
+
   async getProducts(): Promise<MarketplaceProduct[]> {
     try {
       const products = await this.prisma.marketplaceProduct.findMany({
@@ -70,4 +76,37 @@ export class ShopService {
       );
     }
   }
+
+  async getproducts( email: string) {
+    
+      const domain = this.authService.getUserEmailDomain(email); // ← Use your auth method here
+
+      // Find users with the same domain
+      const usersWithSameDomain = await this.prisma.user.findMany({
+        where: {
+          email: {
+            endsWith: `@${domain}`,
+          },
+        },
+        select: { id: true },
+      });
+
+      const userIds = usersWithSameDomain.map((u) => u.id);
+
+      return this.prisma.marketplaceProduct.findMany({
+        where: {
+          userId: { in: userIds },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
+      });
+    
+
+}
 }

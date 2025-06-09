@@ -4,12 +4,14 @@ import {
   Get,
   Body,
   UseGuards,
-  Request,
   HttpException,
   HttpStatus,
+  Req,
+  Request,
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 
 @UseGuards(JwtAuthGuard) // Protect all routes with JWT
 @Controller('shop')
@@ -46,10 +48,12 @@ export class ShopController {
     }
   }
 
+  @UseGuards(JwtAuthGuard) 
   @Get('all')
-  async getProducts() {
+  async getProducts( @Request() req: { user: { email: string } }) {
     try {
-      return await this.shopService.getProducts();
+        const email = req.user.email; 
+      return await this.shopService.getproducts(email);
     } catch (error) {
       console.error('Error fetching products:', error.message);
       throw new HttpException(

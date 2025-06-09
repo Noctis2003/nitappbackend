@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   Res,
+  Query
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request as ExpressRequest } from 'express';
@@ -59,6 +60,10 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  @Get('exists')
+  async exists(@Query('email') email:string){
+  return this.authService.exists(email);
+  }
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response, @Req() req) {
     const userId = req.user?.userId;

@@ -1,3 +1,5 @@
+// this is very easy
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -31,6 +33,9 @@ export class ForumService {
     });
   }
 
+  
+
+
   async getPosts() {
     const res = await this.prisma.forumPost.findMany({
       include: {
@@ -50,4 +55,35 @@ export class ForumService {
       data: res,
     };
   }
+
+
+  async getPostById(id: string) {
+    const post = await this.prisma.forumPost.findUnique({
+      where: { id: Number(id) },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+        likes: true,
+        comments: true,
+      },
+    });
+
+    if (!post) {
+      return {
+        status: 404,
+        message: 'Post not found',
+      };
+    }
+
+    return {
+      status: 200,
+      message: 'Post fetched successfully',
+      data: post,
+    };
+  }
+
 }

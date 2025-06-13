@@ -80,12 +80,13 @@ export class AuthController {
     });
   }
 
-  @Post('refresh')
+  @Get('refresh')
   async refresh(
     @Req() req: CustomRequest, // Use the custom request type
     @Res({ passthrough: true }) res: Response,
   ): Promise<any> {
     const refreshToken = req.cookies['refresh_token'];
+    console.log('Refresh Token:', refreshToken); 
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token not found' });
     }

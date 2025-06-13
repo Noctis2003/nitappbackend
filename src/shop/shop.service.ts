@@ -81,31 +81,24 @@ export class ShopService {
     
       const domain = this.authService.getUserEmailDomain(email); // ← Use your auth method here
 
-      // Find users with the same domain
-      const usersWithSameDomain = await this.prisma.user.findMany({
-        where: {
+
+    return this.prisma.marketplaceProduct.findMany({
+      where: {
+        user: {
           email: {
             endsWith: `@${domain}`,
           },
         },
-        select: { id: true },
-      });
-
-      const userIds = usersWithSameDomain.map((u) => u.id);
-
-      return this.prisma.marketplaceProduct.findMany({
-        where: {
-          userId: { in: userIds },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-            },
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            email: true,
           },
         },
-      });
+      },
+    });
     
 
 }

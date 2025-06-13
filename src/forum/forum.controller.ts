@@ -7,6 +7,7 @@ import {
   Request,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ForumService } from './forum.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -45,4 +46,22 @@ export class ForumController {
       );
     }
   }
+
+    @Get('getsingle')
+  async getPostById(@Query('id') id: string) {
+    try {
+      const post = await this.forumService.getPostById(id);
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+      return post;
+    } catch (error) {
+      console.error('Error fetching post:', error.message);
+      throw new HttpException(
+        'Error fetching post',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
 }

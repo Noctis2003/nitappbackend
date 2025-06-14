@@ -3,7 +3,7 @@ import { CreateCollabDto } from './dto/create-collab.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { HttpStatus, HttpException } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
-
+import { ApplyDto } from './dto/apply.dto';
 @Injectable()
 export class CollabService {
   constructor(
@@ -42,6 +42,27 @@ export class CollabService {
       data: res,
     };
   }
+
+
+  async applyCollab(apply:ApplyDto){
+    const { roleId, userId, message } = apply;
+
+    const application = await this.prisma.collabApplication.create({
+      data: {
+        roleId,
+        userId,
+        message,
+      },
+    });
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Application submitted successfully',
+      data: application,
+    };
+
+  }
+
 
   async getCollabs(scope: 'local' | 'global', email: string) {
     if (scope === 'local') {

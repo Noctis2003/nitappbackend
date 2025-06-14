@@ -95,6 +95,9 @@ export class AuthService {
     return true;
   }
 
+
+  
+
   async register(registerDto: RegisterDto): Promise<UserProfileDto> {
     const { email, username } = registerDto;
 

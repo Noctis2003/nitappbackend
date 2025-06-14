@@ -11,7 +11,8 @@ import { CollabService } from './collab.service';
 import { CreateCollabDto } from './dto/create-collab.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
-
+import { use } from 'passport';
+import { ApplyDto } from './dto/apply.dto';
 @Controller('collab')
 export class CollabController {
   constructor(private readonly collabService: CollabService) {}
@@ -21,6 +22,13 @@ export class CollabController {
   create(@Body() createCollabDto: CreateCollabDto, @Req() req: Request) {
     const userId = (req.user as { userId: number }).userId;
     return this.collabService.create(createCollabDto, userId);
+  }
+
+
+ @UseGuards(JwtAuthGuard)
+  @Post('apply')
+  async applyCollab(@Body() apply: ApplyDto) {
+    return this.collabService.applyCollab(apply);
   }
 
   @UseGuards(JwtAuthGuard)

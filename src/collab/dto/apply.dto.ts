@@ -5,6 +5,12 @@ export class ApplyDto {
   @IsNumber()
   roleId: number;
 
+
+
+  @IsNotEmpty()
+  @IsNumber()
+  userId: number;
+
   @IsNotEmpty()
   @IsString()
   message: string;

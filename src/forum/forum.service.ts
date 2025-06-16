@@ -31,23 +31,77 @@ export class ForumService {
       data: comments,
     };
   }
+   async likedPost(userId: number, postId: number) {
+    const like = await this.prisma.forumLike.findFirst({
+      where: {
+        userId,
+        postId,
+      },
+    });
+    return like ? true : false;
+  }
 
 
 
-  async likePost(likePostDto: likePostDto) {
+  async deletePost(id: Number, userId: number) {
+    const post = await this.prisma.forumPost.findUnique({
+      where: { id: Number(id),
+        userId: userId  
+       },
+    
+    });
 
-const { postId, userId } = likePostDto;
+    if (!post) {
+      return {
+        status: 404,
+        message: 'Post not found',
+      };
+    }
+
+    
+
+
+    // Delete all comments associated with the post
+    await this.prisma.forumComment.deleteMany({
+      where: { postId: Number(id) },
+    });
+
+    // Delete all likes associated with the post
+    await this.prisma.forumLike.deleteMany({
+      where: { postId: Number(id) },
+    });
+
+    // Finally, delete the post itself
+    await this.prisma.forumPost.delete({
+      where: { id: Number(id) },
+    });
+
+    return {
+      status: 200,
+      message: 'Post deleted successfully',
+    };
+  }
+
+  async likePost(likePostDto: likePostDto , userId: number) {
+
+const { postId } = likePostDto;
     const existingLike = await this.prisma.forumLike.findFirst({
       where: {
         userId,
+        postId,
       },
     });
 
 
     if (existingLike) {
+      await this.prisma.forumLike.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
       return {
-        status: 400,
-        message: 'You have already liked this post',
+        status: 200,
+        message: 'Post unliked successfully',
       };
     }
 
@@ -66,8 +120,10 @@ const { postId, userId } = likePostDto;
     };
   }
 
-  async createComment(createCommentDto: CreateCommentDto) {
-    const { postId, userId, content } = createCommentDto;
+
+
+  async createComment(createCommentDto: CreateCommentDto ,userId: number) {
+    const { postId, content } = createCommentDto;
     return this.prisma.forumComment.create({
       data: {
         content,

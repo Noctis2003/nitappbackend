@@ -8,6 +8,8 @@ import {
   HttpStatus,
   Req,
   Request,
+  Delete,
+  Query,
 } from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -47,6 +49,25 @@ export class ShopController {
       );
     }
   }
+
+
+@Delete('delete')
+  async deleteProduct(
+    @Query('id') id: string,
+    @Request() req: { user: { userId: number } },
+  ) {
+    try {
+      const userId = req.user.userId; // Extract user ID from JWT payload
+      return await this.shopService.deleteProduct(+id,userId);
+    } catch (error) {
+      console.error('Error deleting product:', error.message);
+      throw new HttpException(
+        'Error deleting product',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
 
   @UseGuards(JwtAuthGuard) 
   @Get('all')

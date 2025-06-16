@@ -56,6 +56,37 @@ export class ShopService {
   
 
 
+
+  async deleteProduct(id: number,userId): Promise<MarketplaceProduct> {
+    try {
+      const product = await this.prisma.marketplaceProduct.findUnique({
+        where: { id 
+          , userId: userId  // Ensure the product belongs to the user
+        }
+        ,
+      });
+
+      if (!product) {
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+      }
+
+      const deletedProduct = await this.prisma.marketplaceProduct.delete({
+        where: { id },
+      });
+
+      return deletedProduct;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error('Error deleting product:', error);
+      throw new HttpException(
+        'Error deleting product',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async getProducts(): Promise<MarketplaceProduct[]> {
     try {
       const products = await this.prisma.marketplaceProduct.findMany({

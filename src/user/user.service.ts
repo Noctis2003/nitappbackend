@@ -46,6 +46,27 @@ export class UserService {
   async findById(id: number) {
     return this.prisma.user.findUnique({
       where: { id },
+      include: {
+        collabApplications: {
+          include: {
+            role: true,
+          },
+        },
+        collabGigs: {
+          include: {
+            roles: true,
+          },
+        },
+        forumPosts: {
+          include: {
+            comments: true,
+            likes: true,
+          },
+        }
+        ,
+        marketplaceProducts: true,
+        
+      },
     });
   }
 }

@@ -47,14 +47,16 @@ export class UserService {
     return this.prisma.user.findUnique({
       where: { id },
       include: {
-        collabApplications: {
-          include: {
-            role: true,
-          },
-        },
+        
         collabGigs: {
           include: {
-            roles: true,
+            roles: {
+              include: {
+                applications: true
+              },
+            
+            }            
+            
           },
         },
         forumPosts: {

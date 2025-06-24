@@ -6,10 +6,14 @@ import { PrismaService } from '../prisma/prisma.service';
 export class GossipService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createGossipDto: CreateGossipDto) {
-    const res = await this.prisma.gossip.create({
+  async create(createGossipDto: CreateGossipDto , userId: number) {
+    const content = createGossipDto.content;
+   const res = await this.prisma.gossip.create({
       data: {
-        content: createGossipDto.content,
+        content,
+        user:{
+          connect: { id: userId },
+        }
       },
     });
     return {
@@ -19,12 +23,33 @@ export class GossipService {
     };
   }
 
-  async getGossip() {
-    const res = await this.prisma.gossip.findMany({});
+  async getGossip(email: string) {
+    const domain = email.split('@')[1];
+    console.log('Domain:', domain);
+    const gossip = await this.prisma.gossip.findMany({
+      where: {
+        user: {
+          email: {
+            endsWith: domain,
+          },
+        },
+      },
+
+    });
+
+    if (!gossip || gossip.length === 0) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: 'No gossip found for this domain',
+        data: null,
+      };
+    }
+
     return {
       status: HttpStatus.OK,
       message: 'Gossip retrieved successfully',
-      data: res,
+      data: gossip,
+      
     };
   }
 }

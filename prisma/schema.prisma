@@ -24,6 +24,7 @@ model User {
   marketplaceProducts MarketplaceProduct[]
   collabGigs          CollabGig[]
   collabApplications  CollabApplication[]
+  Gossips               Gossip[]
 }
 
 // ===================
@@ -76,8 +77,7 @@ model MarketplaceProduct {
   price       Decimal
   image       String?
   createdAt   DateTime @default(now())
-
-  user   User @relation(fields: [userId], references: [id])
+  user         User @relation(fields: [userId], references: [id])
   userId Int
 }
 
@@ -89,6 +89,8 @@ model Gossip {
   id        Int      @id @default(autoincrement())
   content   String
   createdAt DateTime @default(now())
+  user     User @relation(fields: [userId], references: [id])
+  userId Int
 }
 
 // ===================

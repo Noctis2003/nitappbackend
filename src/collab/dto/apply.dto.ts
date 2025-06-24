@@ -6,11 +6,6 @@ export class ApplyDto {
   roleId: number;
 
 
-
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
-
   @IsNotEmpty()
   @IsString()
   message: string;

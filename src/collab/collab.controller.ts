@@ -6,6 +6,7 @@ import {
   UseGuards,
   Query,
   Get,
+  Delete,
 } from '@nestjs/common';
 import { CollabService } from './collab.service';
 import { CreateCollabDto } from './dto/create-collab.dto';
@@ -27,8 +28,11 @@ export class CollabController {
 
  @UseGuards(JwtAuthGuard)
   @Post('apply')
-  async applyCollab(@Body() apply: ApplyDto) {
-    return this.collabService.applyCollab(apply);
+  async applyCollab(@Body() apply: ApplyDto, @Req() req: Request) {
+
+    const userId = (req.user as { userId: number }).userId;
+
+    return this.collabService.applyCollab(apply , userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -36,6 +40,24 @@ export class CollabController {
   async getCollab(@Query('id') id: string) {
     return this.collabService.getCollabById(Number(id));
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('collab')
+  async deleteCollab(@Query('id') id: string) {
+    return this.collabService.deleteGig(Number(id));
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Delete ('delete')
+  async deleteApplication(
+    @Query('id') id: string,
+  ) {
+  
+    return this.collabService.deleteapplication(Number(id));
+  }
+
+
   @UseGuards(JwtAuthGuard)
   @Get('get')
   async getCollabs(
@@ -45,4 +67,7 @@ export class CollabController {
     const email = (req.user as { email: string }).email;
     return this.collabService.getCollabs(scope, email);
   }
+
+  
+
 }

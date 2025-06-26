@@ -38,14 +38,14 @@ export class AuthController {
     res.cookie('jwt', access_token, {
       httpOnly: true,
       maxAge: 3600000, // 1 hour
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       sameSite: 'none',
     });
 
     res.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: 604800000, // 7 days
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       sameSite: 'none',
     });
     await this.authService.updateRefreshToken(user.id, refresh_token);
@@ -69,13 +69,13 @@ export class AuthController {
     const userId = req.user?.userId;
     res.clearCookie('jwt', {
       httpOnly: true,
-      secure: false, // Set to true in production
+      secure: true, // Set to true in production
       sameSite: 'none',
     });
 
     res.clearCookie('refresh_token', {
       httpOnly: true,
-      secure: false, // Set to true in production
+      secure: true, // Set to true in production
       sameSite: 'none',
     });
   }
@@ -117,14 +117,14 @@ export class AuthController {
       res.cookie('jwt', newTokens.access_token, {
         httpOnly: true,
         maxAge: 3600000, // 1 hour
-        secure: false, // Set to true in production with HTTPS
+        secure: true, // Set to true in production with HTTPS
         sameSite: 'none',
       });
 
       res.cookie('refresh_token', newTokens.refresh_token, {
         httpOnly: true,
         maxAge: 604800000, // 7 days
-        secure: false, // Set to true in production with HTTPS
+        secure: true, // Set to true in production with HTTPS
         sameSite: 'none',
       });
 

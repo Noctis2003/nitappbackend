@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'https://nitapp-ysdi.vercel.app',
+    origin: 'https://nitappbackend.onrender.com', 
     credentials: true,
   });
   app.use(cookieParser());

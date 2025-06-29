@@ -38,14 +38,14 @@ export class AuthController {
     res.cookie('jwt', access_token, {
       httpOnly: true,
       maxAge: 3600000, // 1 hour
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       sameSite: 'lax',
     });
 
     res.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: 604800000, // 7 days
-      secure: false, // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       sameSite: 'lax',
     });
     await this.authService.updateRefreshToken(user.id, refresh_token);

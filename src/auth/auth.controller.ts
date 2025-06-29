@@ -39,14 +39,14 @@ export class AuthController {
       httpOnly: true,
       maxAge: 3600000, // 1 hour
       secure: true, // Set to true in production with HTTPS
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     res.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: 604800000, // 7 days
       secure: true, // Set to true in production with HTTPS
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     await this.authService.updateRefreshToken(user.id, refresh_token);
     return {

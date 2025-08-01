@@ -10,11 +10,8 @@ export class ShopService {
     private readonly authService: AuthService, 
   ) {}
   async createProduct(
-    name: string,
-    price: number | string,
-    description: string,
-    image: string | undefined,
-    userId: number,
+name: string, price: number | string, description: string, image: string | undefined, userId: number, phone: string ,
+public_id: string
   ): Promise<MarketplaceProduct> {
     try {
       const priceValue = typeof price === 'string' ? parseFloat(price) : price;
@@ -22,9 +19,10 @@ export class ShopService {
       if (isNaN(priceValue) || priceValue <= 0) {
         throw new HttpException('Invalid price value', HttpStatus.BAD_REQUEST);
       }
-
+      console.log('Creating product with price:', priceValue);
+    
       const decimalPrice = new Prisma.Decimal(priceValue.toString());
-
+ // game of thrones is really good you can watch it
       const product = await this.prisma.marketplaceProduct.create({
         data: {
           name,
@@ -32,6 +30,8 @@ export class ShopService {
           price: decimalPrice,
           image: image ?? null,
           userId,
+          phone: phone ,
+          publicId: public_id, // Store the public ID for the image
         },
       });
 

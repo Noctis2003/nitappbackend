@@ -11,6 +11,7 @@ import { GossipModule } from './gossip/gossip.module';
 import { CollabModule } from './collab/collab.module';
 import { ConfigModule } from '@nestjs/config';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({

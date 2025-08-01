@@ -83,9 +83,23 @@ export class CollabService {
   }
 
 
+  async getUserEmailDomain(email: string): Promise<string> {
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Invalid email format',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return email.slice(atIndex + 1);
+  }
+
   async getCollabs(scope: 'local' | 'global', email: string) {
     if (scope === 'local') {
-      const domain = this.authService.getUserEmailDomain(email); // ← Use your auth method here
+      const domain = await this.getUserEmailDomain(email);
 
       // Find users with the same domain
       const usersWithSameDomain = await this.prisma.user.findMany({

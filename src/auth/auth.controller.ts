@@ -51,9 +51,10 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.redirect('http://localhost:3000/featured/confessions'); // your frontend
+    res.redirect('https://nitapp.vercel.app/featured/confessions'); // your frontend
   }
-  
+
+
 
  @Post('logout')
   logout(@Res({ passthrough: true }) res: Response, @Req() req) {

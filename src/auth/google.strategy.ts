@@ -19,7 +19,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: configService.get('GOOGLE_CLIENT_ID') || '',
       clientSecret: configService.get('GOOGLE_CLIENT_SECRET') || '',
-      callbackURL: 'http://https://nitappbackend.onrender.com/auth/google/callback',
+      callbackURL: 'https://nitappbackend.onrender.com/auth/google/callback',
       scope: ['email', 'profile'],
     });
   }

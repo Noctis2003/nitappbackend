@@ -1,10 +1,9 @@
-// i guess this is how you do it
+// auth/strategies/jwt.strategy.ts
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request } from 'express'; // Import Request type
-import { AuthService } from './auth.service';
-
+import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 interface JwtPayload {
   sub: number;
   username: string;
@@ -13,21 +12,19 @@ interface JwtPayload {
 }
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => {
-          return req?.cookies?.jwt; // Extract JWT from cookies
-        },
+        (req: Request) => req?.cookies?.access_token,
       ]),
-      ignoreExpiration: false, // Ensure expired tokens are rejected
-      secretOrKey: 'qeqeqe', // Use the secret key for JWT validation
+      ignoreExpiration: false,
+      secretOrKey: config.get('JWT_SECRET') || 'fallback-secret',
     });
   }
 
-  // This method is called when a request is made with a JWT
-  validate(payload: JwtPayload) {
-    return { userId: payload.sub, email: payload.email };
-  }
+  async validate(payload: JwtPayload) {
+    console.log('JWT Strategy - payload:', payload);
+   return { userId: payload.sub, email: payload.email };
+   }
 }

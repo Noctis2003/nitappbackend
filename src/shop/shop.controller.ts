@@ -28,11 +28,14 @@ export class ShopController {
       price: number | string;
       description: string;
       image?: string;
+      phone: string;
+      public_id: string;
     },
     @Request() req: { user: { userId: number } },
   ) {
     try {
-      const { name, price, description, image } = body;
+      const { name, price, description, image, public_id } = body;
+      console.log('Creating product with body:', body);
       const userId = req.user.userId; // Extract user ID from JWT payload
       return await this.shopService.createProduct(
         name,
@@ -40,6 +43,8 @@ export class ShopController {
         description,
         image,
         userId,
+        body.phone,
+        public_id
       );
     } catch (error) {
       console.error('Error creating product:', error.message);

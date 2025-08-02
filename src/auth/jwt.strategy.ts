@@ -1,4 +1,5 @@
 // auth/strategies/jwt.strategy.ts
+// i want to be one of the greats
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -28,3 +29,4 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    return { userId: payload.sub, email: payload.email };
    }
 }
+// now we must see why the app is breaking

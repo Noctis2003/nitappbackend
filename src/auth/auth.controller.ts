@@ -36,6 +36,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req: ExpressRequest, @Res() res: Response) {
+      res.redirect('https://nitapp.vercel.app/featured/confessions'); // your frontend
     const jwt = this.authService.generateJwt(req.user);
     res.cookie('access_token', jwt, {
       httpOnly: true,
@@ -51,7 +52,7 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.redirect('https://nitapp.vercel.app/featured/confessions'); // your frontend
+  
   }
 
 

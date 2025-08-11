@@ -1,0 +1,8 @@
+[33m50ec8da[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: rebase (start): checkout e1bb1a8dd626bbb079cd4803ce1f165d2a00cb9d~1
+[33m8b25751[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{1}: commit: b
+[33m398b4e3[m HEAD@{2}: commit: b
+[33me1bb1a8[m HEAD@{3}: commit: changes
+[33m50ec8da[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: commit: readme changes
+[33m62f227c[m HEAD@{5}: commit: changes
+[33ma8b620c[m HEAD@{6}: commit: changes
+[33mb0d206d[m HEAD@{7}: clone: from https://github.com/Noctis2003/nitappbackend.git

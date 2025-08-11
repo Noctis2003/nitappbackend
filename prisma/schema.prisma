@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================
+// User Model
+// ===================
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  
+  createdAt DateTime @default(now())
+  refreshToken  String?  
+  forumPosts          ForumPost[]
+  forumComments       ForumComment[]
+  forumLikes          ForumLike[]
+  marketplaceProducts MarketplaceProduct[]
+  collabGigs          CollabGig[]
+  collabApplications  CollabApplication[]
+  Gossips               Gossip[]
+}
+
+// ===================
+// Forum Models
+// ===================
+
+model ForumPost {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+
+  user     User           @relation(fields: [userId], references: [id])
+  userId   Int
+  comments ForumComment[]
+  likes    ForumLike[]
+}
+
+model ForumComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  post   ForumPost @relation(fields: [postId], references: [id])
+  postId Int
+  user   User      @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model ForumLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  post   ForumPost @relation(fields: [postId], references: [id])
+  postId Int
+  user   User      @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@unique([postId, userId])
+}
+
+// ===================
+// Marketplace Models
+// ===================
+
+model MarketplaceProduct {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal
+  phone       String
+  image       String?
+  publicId  String   @unique
+  createdAt   DateTime @default(now())
+  user         User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+// ===================
+// Gossip Model
+// ===================
+
+model Gossip {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  user     User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+// ===================
+// Collab Feature
+// ===================
+
+model CollabGig {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime      @default(now())
+  user   User         @relation(fields: [userId], references: [id])
+  userId Int
+  roles  CollabRole[]
+}
+
+model CollabRole {
+  id       Int                 @id @default(autoincrement())
+  roleName String              // e.g., "Cameraman", "Coder"
+  filled   Int                 @default(0)
+
+  gig     CollabGig           @relation(fields: [gigId], references: [id])
+  gigId   Int
+  applications CollabApplication[]
+}
+
+model CollabApplication {
+  id        Int        @id @default(autoincrement())
+  message   String
+  createdAt DateTime   @default(now())
+
+  role     CollabRole @relation(fields: [roleId], references: [id])
+  roleId   Int
+  user     User       @relation(fields: [userId], references: [id])
+  userId   Int
+
+  @@unique([roleId, userId]) 
+}
